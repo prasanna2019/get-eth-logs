@@ -6,6 +6,9 @@ from dotenv import load_dotenv
 
 from utils.helpers import get_logs, ingest_logs, table_exists, get_block_number
 
+from google.cloud import secretmanager
+import io
+
 
 
 if not logging.getLogger().handlers:
@@ -18,8 +21,18 @@ logger = logging.getLogger(__name__)
 
 required_columns= {'address', 'blockTimestamp'}
 
+def load_secrets_from_gcp():
+    client = secretmanager.SecretManagerServiceClient()
+    name = "projects/500561239629/secrets/eth-logs-secret/versions/latest"
+    response = client.access_secret_version(request={"name": name})
+
+    secret_data = response.payload.data.decode("UTF-8")
+    load_dotenv(stream=io.StringIO(secret_data))
+
+load_secrets_from_gcp()
 
 def handler(event, context):
+    
     try:
         table_exists()
         block_number= get_block_number()
