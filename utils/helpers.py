@@ -43,25 +43,23 @@ def ingest_logs(df):
         table_id,
         len(df),
     )
-    try:
-        job = client.load_table_from_dataframe(
-            df, f"{project_id}.{dataset_id}.{table_id}"
-        )
-        result = job.result()
-        logger.info("Ingestion completed: %s", result)
-        logger.info("Ingestion completed: %s",job.output_rows)
-        return result
-    except Exception as e:
-        logger.exception("Ingestion failed")
-        return e
+    
+    job = client.load_table_from_dataframe(
+        df, f"{project_id}.{dataset_id}.{table_id}"
+    )
+    result = job.result()
+    logger.info("Ingestion completed: %s", result)
+    logger.info("Ingestion completed: %s",job.output_rows)
+    return result
+    
 
 def table_exists():
-    client.get_table(f"{project_id}.{dataset_id}.{table_id}")
+    return client.get_table(f"{project_id}.{dataset_id}.{table_id}")
 
 def get_block_number():
     query= f"""
-    SELECT max(blockNumber) FROM `{project_id}.{dataset_id}.{table_id}` WHERE processed_timestamp= TIMESTAMP_TRUNC(CURRENT_DATE, YEAR)
+    SELECT max(blockNumber) FROM `{project_id}.{dataset_id}.{table_id}` WHERE processed_timestamp= TIMESTAMP_TRUNC(CURRENT_DATE(), YEAR)
     """
     query_job = client.query(query)
     results = query_job.result()
-    return next(results)[0]
+    return next(results, None)[0]

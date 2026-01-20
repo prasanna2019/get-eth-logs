@@ -48,10 +48,10 @@ def handler(event, context):
         print(to_block_number)
         logs = get_logs(block_number, to_block_number)
         logger.info("Fetched %d log entries", len(logs))
-    except:
+    except Exception as e:
         logger.exception("Failed to get block data")
+        return
     if(not bool(required_columns- set(logs.columns)) and not(logs.empty)):
-    # Faster for massive dataframes
         logs['blockTimestamp'] = logs['blockTimestamp'].str.replace('0x', '', regex=False).apply(int, base=16)
         logs['blockTimestamp'] = pd.to_datetime(logs['blockTimestamp'], unit='s')
         try:
@@ -61,9 +61,8 @@ def handler(event, context):
             logger.exception("Failed to ingest block data")
     else:
         logger.info("Required columns missing in block data")
-
         return
-    logger.info("Exiting without ingesting records")
+    logger.info("Exiting...")
     
  
 
