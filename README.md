@@ -20,3 +20,5 @@ Resume ingestion from the next block range
 Incremental log ingestion based on last processed block
 
 BigQuery as the analytical data warehouse
+
+This is run in GCP as a cloud function. The second stage of this project can be found at:  https://github.com/prasanna2019/eth-decode-transfer
