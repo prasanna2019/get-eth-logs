@@ -10,7 +10,6 @@ from web3 import Web3
 logger = logging.getLogger(__name__)
 
 
-load_dotenv()
 url = os.getenv("infura_url") + os.getenv("secret")
 project_id = os.getenv("project")
 dataset_id = os.getenv("dataset")
@@ -18,8 +17,7 @@ table_id = os.getenv("table")
 key_path = os.getenv("bq_key")
 
 w3 = Web3(Web3.HTTPProvider(url))
-credentials = service_account.Credentials.from_service_account_file(key_path)
-client = bigquery.Client(credentials=credentials, project=project_id)
+client = bigquery.Client()
 
 
 def get_logs(fromBlock, toBlock):
@@ -58,7 +56,7 @@ def table_exists():
 
 def get_block_number():
     query= f"""
-    SELECT max(blockNumber) FROM `{project_id}.{dataset_id}.{table_id}` WHERE processed_timestamp= TIMESTAMP_TRUNC(CURRENT_DATE(), YEAR)
+    SELECT max(blockNumber) FROM `{project_id}.{dataset_id}.{table_id}` WHERE processed_timestamp >= TIMESTAMP_TRUNC(CURRENT_TIMESTAMP(), YEAR)
     """
     query_job = client.query(query)
     results = query_job.result()
